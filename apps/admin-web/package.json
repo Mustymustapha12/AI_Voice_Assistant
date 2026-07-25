@@ -14,8 +14,8 @@
   },
   "dependencies": {
     "@avc/contracts": "workspace:*",
-    "@hookform/resolvers": "^5.2.1",
-    "@radix-ui/react-slot": "^1.2.3",
+    "@hookform/resolvers": "^5.4.2",
+    "@radix-ui/react-slot": "^1.3.3",
     "@tanstack/react-query": "^5.83.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -24,7 +24,7 @@
     "next-themes": "^0.4.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-hook-form": "^7.61.1",
+    "react-hook-form": "^7.83.0",
     "tailwind-merge": "^3.3.0",
     "zod": "^4.0.10"
   },
