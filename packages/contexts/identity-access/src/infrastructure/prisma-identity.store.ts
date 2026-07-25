@@ -19,6 +19,7 @@ function mapUser(user: PrismaUser): IdentityUser {
     emailVerifiedAt: user.emailVerifiedAt,
     id: user.id,
     lastLoginAt: user.lastLoginAt,
+    mustChangePassword: user.mustChangePassword,
     normalizedEmail: user.normalizedEmail,
     passwordHash: user.passwordHash,
     role: user.role,
@@ -28,6 +29,22 @@ function mapUser(user: PrismaUser): IdentityUser {
 
 export class PrismaIdentityStore implements IdentityStore {
   public constructor(private readonly database: PrismaService) {}
+
+  public async changePassword(input: {
+    readonly changedAt: Date;
+    readonly passwordHash: string;
+    readonly userId: string;
+  }): Promise<void> {
+    await this.database.user.update({
+      data: {
+        mustChangePassword: false,
+        passwordChangedAt: input.changedAt,
+        passwordHash: input.passwordHash,
+        version: { increment: 1 },
+      },
+      where: { id: input.userId },
+    });
+  }
 
   public async createAdmin(input: {
     readonly displayName: string;
@@ -251,6 +268,17 @@ export class PrismaIdentityStore implements IdentityStore {
     await this.database.session.updateMany({
       data: { revocationReason: reason, revokedAt: new Date() },
       where: { revokedAt: null, userId },
+    });
+  }
+
+  public async revokeOtherUserSessions(
+    userId: string,
+    retainedSessionId: string,
+    reason: string,
+  ): Promise<void> {
+    await this.database.session.updateMany({
+      data: { revocationReason: reason, revokedAt: new Date() },
+      where: { id: { not: retainedSessionId }, revokedAt: null, userId },
     });
   }
 

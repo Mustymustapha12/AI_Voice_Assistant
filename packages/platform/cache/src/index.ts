@@ -44,8 +44,10 @@ export class CacheService implements OnModuleDestroy {
   }
 
   public async onModuleDestroy(): Promise<void> {
-    if (this.client.status !== 'end') {
+    if (this.client.status === 'ready') {
       await this.client.quit();
+    } else if (this.client.status !== 'end') {
+      this.client.disconnect();
     }
   }
 }

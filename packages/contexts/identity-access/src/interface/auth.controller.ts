@@ -31,6 +31,8 @@ import type { SessionView } from '../application/ports.js';
 
 import { AccessTokenGuard, requirePrincipal } from './access.guard.js';
 import {
+  AllowPasswordChangeRequired,
+  changePasswordSchema,
   forgotPasswordSchema,
   loginSchema,
   parseInput,
@@ -113,15 +115,35 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(AccessTokenGuard)
+  @AllowPasswordChangeRequired()
   @ApiBearerAuth('access-token')
   @ApiOkResponse({ description: 'Current authenticated user.' })
   public currentUser(@Req() request: AuthenticatedRequest): Promise<PublicUser> {
     return this.identity.currentUser(requirePrincipal(request).userId);
   }
 
+  @Post('change-password')
+  @HttpCode(204)
+  @UseGuards(AccessTokenGuard)
+  @AllowPasswordChangeRequired()
+  @ApiBearerAuth('access-token')
+  public async changePassword(
+    @Body() body: unknown,
+    @Req() request: AuthenticatedRequest,
+  ): Promise<void> {
+    const input = parseInput(changePasswordSchema, body);
+    await this.identity.changePassword(
+      requirePrincipal(request),
+      input.currentPassword,
+      input.newPassword,
+      requestMetadata(request),
+    );
+  }
+
   @Post('logout')
   @HttpCode(204)
   @UseGuards(AccessTokenGuard)
+  @AllowPasswordChangeRequired()
   @ApiBearerAuth('access-token')
   public async logout(
     @Req() request: AuthenticatedRequest,

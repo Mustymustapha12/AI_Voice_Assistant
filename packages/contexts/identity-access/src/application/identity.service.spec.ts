@@ -1,6 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { permissionsForRole, type AuthenticatedPrincipal } from '../domain/model.js';
+import {
+  permissionsForRole,
+  type AuthenticatedPrincipal,
+  type IdentityUser,
+} from '../domain/model.js';
 
 import { IdentityApplicationService } from './identity.service.js';
 import type {
@@ -10,7 +14,10 @@ import type {
   TransactionalEmail,
 } from './ports.js';
 
-function createService(overrides: Partial<IdentityStore> = {}): IdentityApplicationService {
+function createService(
+  overrides: Partial<IdentityStore> = {},
+  passwordValid = false,
+): IdentityApplicationService {
   const store = {
     findUserByEmail: vi.fn().mockResolvedValue(null),
     recordAudit: vi.fn().mockResolvedValue(undefined),
@@ -18,7 +25,7 @@ function createService(overrides: Partial<IdentityStore> = {}): IdentityApplicat
   } as unknown as IdentityStore;
   const hasher = {
     hash: vi.fn().mockResolvedValue('hash'),
-    verify: vi.fn().mockResolvedValue(false),
+    verify: vi.fn().mockResolvedValue(passwordValid),
   } satisfies PasswordHasher;
   const accessTokens = {
     issue: vi.fn(),
@@ -39,10 +46,25 @@ function createService(overrides: Partial<IdentityStore> = {}): IdentityApplicat
 
 const admin: AuthenticatedPrincipal = {
   email: 'admin@example.com',
+  mustChangePassword: false,
   permissions: permissionsForRole('ADMIN'),
   role: 'ADMIN',
   sessionId: 'session',
   userId: 'user',
+};
+
+const activeAdmin: IdentityUser = {
+  createdAt: new Date(),
+  displayName: 'Test Admin',
+  email: 'admin@example.com',
+  emailVerifiedAt: new Date(),
+  id: '8119e54d-c2ea-4265-98e6-77ec9af2bba5',
+  lastLoginAt: null,
+  mustChangePassword: true,
+  normalizedEmail: 'admin@example.com',
+  passwordHash: 'existing-hash',
+  role: 'ADMIN',
+  status: 'ACTIVE',
 };
 
 describe('IdentityApplicationService authorization', () => {
@@ -60,5 +82,30 @@ describe('IdentityApplicationService authorization', () => {
   it('returns normally for unknown password recovery accounts', async () => {
     const service = createService();
     await expect(service.forgotPassword('unknown@example.com', {})).resolves.toBeUndefined();
+  });
+
+  it('clears first-login state and revokes other sessions after password change', async () => {
+    const changePassword = vi.fn().mockResolvedValue(undefined);
+    const revokeOtherUserSessions = vi.fn().mockResolvedValue(undefined);
+    const service = createService(
+      {
+        changePassword,
+        findUserById: vi.fn().mockResolvedValue(activeAdmin),
+        revokeOtherUserSessions,
+      },
+      true,
+    );
+    const actor = { ...admin, mustChangePassword: true, userId: activeAdmin.id };
+
+    await service.changePassword(actor, 'Admin@123', 'NewAdmin@12345', {});
+
+    expect(changePassword).toHaveBeenCalledWith(
+      expect.objectContaining({ userId: activeAdmin.id }),
+    );
+    expect(revokeOtherUserSessions).toHaveBeenCalledWith(
+      activeAdmin.id,
+      actor.sessionId,
+      'password_changed',
+    );
   });
 });

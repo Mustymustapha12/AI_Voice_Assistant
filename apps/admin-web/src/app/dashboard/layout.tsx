@@ -15,8 +15,10 @@ export default function DashboardLayout({ children }: PropsWithChildren): React.
   useEffect(() => {
     if (auth.status === 'anonymous') {
       router.replace('/login');
+    } else if (auth.user?.mustChangePassword === true) {
+      router.replace('/change-password');
     }
-  }, [auth.status, router]);
+  }, [auth.status, auth.user?.mustChangePassword, router]);
 
   if (auth.status !== 'authenticated' || auth.user === null) {
     return <main className="p-8 text-sm">Restoring secure session…</main>;

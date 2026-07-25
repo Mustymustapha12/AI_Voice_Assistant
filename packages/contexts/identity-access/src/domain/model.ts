@@ -27,6 +27,7 @@ export interface IdentityUser {
   readonly emailVerifiedAt: Date | null;
   readonly id: string;
   readonly lastLoginAt: Date | null;
+  readonly mustChangePassword: boolean;
   readonly normalizedEmail: string;
   readonly passwordHash: string | null;
   readonly role: PlatformRole;
@@ -35,6 +36,7 @@ export interface IdentityUser {
 
 export interface AuthenticatedPrincipal {
   readonly email: string;
+  readonly mustChangePassword: boolean;
   readonly permissions: readonly Permission[];
   readonly role: PlatformRole;
   readonly sessionId: string;

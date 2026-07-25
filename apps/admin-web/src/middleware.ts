@@ -2,7 +2,11 @@ import { type NextRequest, NextResponse } from 'next/server';
 
 export function middleware(request: NextRequest): NextResponse {
   const hasRefreshSession = request.cookies.has('avc_refresh');
-  if (request.nextUrl.pathname.startsWith('/dashboard') && !hasRefreshSession) {
+  if (
+    (request.nextUrl.pathname.startsWith('/dashboard') ||
+      request.nextUrl.pathname === '/change-password') &&
+    !hasRefreshSession
+  ) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
   if (request.nextUrl.pathname === '/login' && hasRefreshSession) {
@@ -12,5 +16,5 @@ export function middleware(request: NextRequest): NextResponse {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/login'],
+  matcher: ['/change-password', '/dashboard/:path*', '/login'],
 };

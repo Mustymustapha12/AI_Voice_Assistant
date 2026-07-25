@@ -49,6 +49,7 @@ export interface PublicUser {
   readonly displayName: string;
   readonly email: string;
   readonly id: string;
+  readonly mustChangePassword: boolean;
   readonly permissions: readonly string[];
   readonly role: 'SUPER_ADMIN' | 'ADMIN';
   readonly status: 'PENDING_VERIFICATION' | 'ACTIVE' | 'DISABLED';
@@ -59,6 +60,7 @@ function toPublicUser(user: IdentityUser): PublicUser {
     displayName: user.displayName,
     email: user.email,
     id: user.id,
+    mustChangePassword: user.mustChangePassword,
     permissions: permissionsForRole(user.role),
     role: user.role,
     status: user.status,
@@ -268,6 +270,7 @@ export class IdentityApplicationService {
     }
     return {
       email: user.email,
+      mustChangePassword: user.mustChangePassword,
       permissions: permissionsForRole(user.role),
       role: user.role,
       sessionId: claims.sessionId,
@@ -278,6 +281,39 @@ export class IdentityApplicationService {
   public async currentUser(userId: string): Promise<PublicUser> {
     const user = await this.requireUser(userId);
     return toPublicUser(user);
+  }
+
+  public async changePassword(
+    actor: AuthenticatedPrincipal,
+    currentPassword: string,
+    newPassword: string,
+    metadata: RequestMetadata,
+  ): Promise<void> {
+    const user = await this.requireUser(actor.userId);
+    if (
+      user.passwordHash === null ||
+      !(await this.passwordHasher.verify(user.passwordHash, currentPassword))
+    ) {
+      throw new ApplicationError('The current password is incorrect.', {
+        code: 'AUTH_INVALID_CURRENT_PASSWORD',
+        status: UNAUTHORIZED,
+      });
+    }
+    const passwordHash = await this.passwordHasher.hash(newPassword);
+    await this.store.changePassword({
+      passwordHash,
+      userId: user.id,
+      changedAt: new Date(),
+    });
+    await this.store.revokeOtherUserSessions(user.id, actor.sessionId, 'password_changed');
+    await this.store.recordAudit({
+      action: 'identity.password-changed',
+      actorUserId: user.id,
+      metadata,
+      outcome: 'SUCCESS',
+      resourceId: user.id,
+      resourceType: 'user',
+    });
   }
 
   public async logout(userId: string, sessionId: string, metadata: RequestMetadata): Promise<void> {

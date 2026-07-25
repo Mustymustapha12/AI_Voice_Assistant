@@ -20,6 +20,7 @@ import {
 } from '@/lib/api-client';
 
 interface AuthContextValue {
+  readonly changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
   readonly login: (email: string, password: string) => Promise<void>;
   readonly logout: () => Promise<void>;
   readonly status: 'loading' | 'authenticated' | 'anonymous';
@@ -51,6 +52,17 @@ export function AuthProvider({ children }: PropsWithChildren): React.JSX.Element
     setStatus('authenticated');
   }, []);
 
+  const changePassword = useCallback(
+    async (currentPassword: string, newPassword: string): Promise<void> => {
+      await apiRequest<void>('/auth/change-password', {
+        body: JSON.stringify({ currentPassword, newPassword }),
+        method: 'POST',
+      });
+      setUser((current) => (current === null ? null : { ...current, mustChangePassword: false }));
+    },
+    [],
+  );
+
   const logout = useCallback(async (): Promise<void> => {
     try {
       await apiRequest<void>('/auth/logout', { method: 'POST' });
@@ -62,7 +74,10 @@ export function AuthProvider({ children }: PropsWithChildren): React.JSX.Element
     }
   }, [router]);
 
-  const value = useMemo(() => ({ login, logout, status, user }), [login, logout, status, user]);
+  const value = useMemo(
+    () => ({ changePassword, login, logout, status, user }),
+    [changePassword, login, logout, status, user],
+  );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

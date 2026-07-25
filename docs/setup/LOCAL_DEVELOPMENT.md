@@ -154,3 +154,22 @@ pnpm auth:bootstrap-super-admin
 
 The operation refuses to create a second Super Admin. Remove the bootstrap password from deployment
 secrets after successful provisioning.
+
+For the deterministic local Phase 2A accounts, use:
+
+```bash
+pnpm db:migrate
+pnpm db:seed
+```
+
+See the [Phase 2A QA report](../qa/PHASE_2A_QA_REPORT.md) for default credentials, URLs, route
+inventory, and the login procedure. `pnpm db:reset` destructively recreates the local database and
+then reseeds it; never run it against shared or production data.
+
+Start Prisma Studio with:
+
+```bash
+pnpm db:studio
+```
+
+It is available at `http://localhost:5555`.

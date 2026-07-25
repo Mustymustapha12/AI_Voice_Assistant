@@ -5,7 +5,11 @@ import { Reflector } from '@nestjs/core';
 import { IdentityApplicationService } from '../application/identity.service.js';
 import type { AuthenticatedPrincipal, Permission } from '../domain/model.js';
 
-import { REQUIRED_PERMISSIONS, type AuthenticatedRequest } from './http.js';
+import {
+  PASSWORD_CHANGE_NOT_REQUIRED,
+  REQUIRED_PERMISSIONS,
+  type AuthenticatedRequest,
+} from './http.js';
 
 @Injectable()
 export class AccessTokenGuard implements CanActivate {
@@ -32,6 +36,17 @@ export class AccessTokenGuard implements CanActivate {
         });
       });
     request.principal = principal;
+    const passwordChangeAllowed =
+      this.reflector.getAllAndOverride<boolean | undefined>(PASSWORD_CHANGE_NOT_REQUIRED, [
+        context.getHandler(),
+        context.getClass(),
+      ]) ?? false;
+    if (principal.mustChangePassword && !passwordChangeAllowed) {
+      throw new ApplicationError('A password change is required before continuing.', {
+        code: 'AUTH_PASSWORD_CHANGE_REQUIRED',
+        status: 403,
+      });
+    }
     const permissions =
       this.reflector.getAllAndOverride<readonly Permission[] | undefined>(REQUIRED_PERMISSIONS, [
         context.getHandler(),

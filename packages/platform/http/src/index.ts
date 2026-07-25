@@ -60,7 +60,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       this.logger.error(
         {
           correlationId,
-          error: exception,
+          err: exception,
           method: request.method,
           path: request.url,
           status: normalized.status,

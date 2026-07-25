@@ -7,9 +7,13 @@ import type { RequestMetadata } from '../application/ports.js';
 import type { AuthenticatedPrincipal, Permission } from '../domain/model.js';
 
 export const REQUIRED_PERMISSIONS = Symbol('REQUIRED_PERMISSIONS');
+export const PASSWORD_CHANGE_NOT_REQUIRED = Symbol('PASSWORD_CHANGE_NOT_REQUIRED');
 
 export const RequirePermissions = (...permissions: readonly Permission[]): MethodDecorator =>
   SetMetadata(REQUIRED_PERMISSIONS, permissions);
+
+export const AllowPasswordChangeRequired = (): MethodDecorator =>
+  SetMetadata(PASSWORD_CHANGE_NOT_REQUIRED, true);
 
 export interface AuthenticatedRequest extends FastifyRequest {
   principal?: AuthenticatedPrincipal;
@@ -59,6 +63,16 @@ export const tokenAndPasswordSchema = z.object({
   password: passwordSchema,
   token: z.string().min(32).max(512),
 });
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1).max(128),
+    newPassword: passwordSchema,
+  })
+  .refine((input) => input.currentPassword !== input.newPassword, {
+    message: 'The new password must differ from the current password.',
+    path: ['newPassword'],
+  });
 
 export const forgotPasswordSchema = z.object({
   email: z.email().max(320),

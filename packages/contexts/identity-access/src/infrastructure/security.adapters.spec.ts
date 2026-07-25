@@ -11,6 +11,7 @@ const user: IdentityUser = {
   emailVerifiedAt: new Date(),
   id: '68b7d48e-eed0-49fb-a807-e7212290d314',
   lastLoginAt: null,
+  mustChangePassword: false,
   normalizedEmail: 'security@example.com',
   passwordHash: null,
   role: 'ADMIN',

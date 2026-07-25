@@ -17,6 +17,8 @@ ports for persistence, password hashing, access tokens, and transactional email.
 
 - There is no public registration endpoint. A controlled, one-time CLI operation bootstraps the
   first Super Admin.
+- Deterministic local seed identities are normalized-email upserts. Existing passwords are never
+  overwritten. The seed is denied in production unless explicitly authorized.
 - Only a Super Admin can invite or remove an Admin. No API can create or remove a Super Admin.
 - Admin does not receive `identity.admins.manage`, `identity.sessions.manage`,
   `identity.audit.read`, or `platform.configuration.manage`.
@@ -47,3 +49,5 @@ context.
 4. Refresh replay revokes its complete session family.
 5. Password reset invalidates all active sessions.
 6. Authentication failures are bounded, generic, and recorded.
+7. A user marked for first-login password change can access only identity inspection, password
+   change, and logout until rotation succeeds.

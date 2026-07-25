@@ -54,6 +54,11 @@ export interface LoginHistoryView {
 }
 
 export interface IdentityStore {
+  changePassword(input: {
+    readonly changedAt: Date;
+    readonly passwordHash: string;
+    readonly userId: string;
+  }): Promise<void>;
   createAdmin(input: {
     readonly displayName: string;
     readonly email: string;
@@ -94,6 +99,7 @@ export interface IdentityStore {
   revokeSession(sessionId: string, userId: string, reason: string): Promise<boolean>;
   revokeSessionFamily(familyId: string, reason: string): Promise<void>;
   revokeAllUserSessions(userId: string, reason: string): Promise<void>;
+  revokeOtherUserSessions(userId: string, retainedSessionId: string, reason: string): Promise<void>;
   listSessions(userId: string): Promise<readonly SessionView[]>;
   updateSuccessfulLogin(userId: string, occurredAt: Date): Promise<void>;
   countRecentFailedLogins(normalizedEmail: string, since: Date): Promise<number>;

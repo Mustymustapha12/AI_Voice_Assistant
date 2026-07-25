@@ -37,6 +37,7 @@ model User {
   normalizedEmail   String   @unique @map("normalized_email") @db.VarChar(320)
   displayName       String   @map("display_name") @db.VarChar(120)
   passwordHash      String?  @map("password_hash") @db.VarChar(512)
+  mustChangePassword Boolean @default(false) @map("must_change_password")
   role              PlatformRole
   status            UserStatus @default(PENDING_VERIFICATION)
   emailVerifiedAt   DateTime? @map("email_verified_at") @db.Timestamptz(3)

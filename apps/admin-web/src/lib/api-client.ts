@@ -6,6 +6,7 @@ export interface AuthenticatedUser {
   readonly displayName: string;
   readonly email: string;
   readonly id: string;
+  readonly mustChangePassword: boolean;
   readonly permissions: readonly string[];
   readonly role: 'SUPER_ADMIN' | 'ADMIN';
   readonly status: 'PENDING_VERIFICATION' | 'ACTIVE' | 'DISABLED';
