@@ -1,0 +1,96 @@
+name: Continuous Integration
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  cancel-in-progress: true
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate monorepo
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      APP_VERSION: ci
+      CONTROL_API_CORS_ORIGINS: http://localhost:3000
+      CONTROL_API_HOST: 127.0.0.1
+      CONTROL_API_PORT: 3001
+      CONTROL_API_SWAGGER_ENABLED: 'true'
+      DATABASE_URL: postgresql://voice_commerce:voice_commerce@localhost:5432/voice_commerce?schema=public
+      EVENT_WORKER_CONCURRENCY: 2
+      LOG_LEVEL: silent
+      NEXT_PUBLIC_CONTROL_API_URL: http://localhost:3001/api/v1
+      NODE_ENV: test
+      REDIS_DB: 0
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+      REDIS_TLS: 'false'
+
+    services:
+      postgres:
+        image: postgres:17.5-alpine3.22
+        env:
+          POSTGRES_DB: voice_commerce
+          POSTGRES_PASSWORD: voice_commerce
+          POSTGRES_USER: voice_commerce
+        options: >-
+          --health-cmd "pg_isready -U voice_commerce -d voice_commerce"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+        ports:
+          - 5432:5432
+      redis:
+        image: redis:7.4.5-alpine3.21
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: pnpm
+          node-version: 22.17.1
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+
+      - name: Validate formatting
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Type-check
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Validate Docker Compose
+        run: docker compose config --quiet

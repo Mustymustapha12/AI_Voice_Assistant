@@ -1,0 +1,35 @@
+# Dependencies and build artifacts
+node_modules/
+.pnpm-store/
+.next/
+.nx/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+!.env.test
+
+# Generated clients
+packages/platform/database/src/generated/
+
+# Logs and runtime files
+*.log
+logs/
+pids/
+*.pid
+
+# Editors and operating systems
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Test and tooling
+playwright-report/
+test-results/
+.turbo/

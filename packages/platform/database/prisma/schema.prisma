@@ -1,0 +1,11 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Phase 1 intentionally defines no domain models. Each bounded context will add
+// owned tables and migrations only when its implementation phase begins.

@@ -1,0 +1,8 @@
+.next
+.nx
+coverage
+dist
+docs/architecture/SOFTWARE_ARCHITECTURE.md
+node_modules
+packages/platform/database/src/generated
+pnpm-lock.yaml

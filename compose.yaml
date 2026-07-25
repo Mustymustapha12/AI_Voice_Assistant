@@ -1,0 +1,138 @@
+name: ai-voice-commerce
+
+services:
+  postgres:
+    image: postgres:17.5-alpine3.22
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-voice_commerce}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-development-only}
+      POSTGRES_USER: ${POSTGRES_USER:-voice_commerce}
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${POSTGRES_USER:-voice_commerce} -d ${POSTGRES_DB:-voice_commerce}',
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    ports:
+      - '127.0.0.1:5432:5432'
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7.4.5-alpine3.21
+    command:
+      - redis-server
+      - --appendonly
+      - 'yes'
+      - --save
+      - '60'
+      - '1000'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    ports:
+      - '127.0.0.1:6379:6379'
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - redis-data:/data
+
+  control-api:
+    profiles: ['application']
+    build:
+      context: .
+      dockerfile: infrastructure/docker/control-api.Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      APP_VERSION: ${APP_VERSION:-0.1.0}
+      CONTROL_API_CORS_ORIGINS: ${CONTROL_API_CORS_ORIGINS:-http://localhost:3000}
+      CONTROL_API_HOST: 0.0.0.0
+      CONTROL_API_PORT: 3001
+      CONTROL_API_SWAGGER_ENABLED: ${CONTROL_API_SWAGGER_ENABLED:-true}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-voice_commerce}:${POSTGRES_PASSWORD:-local-development-only}@postgres:5432/${POSTGRES_DB:-voice_commerce}?schema=public
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      NODE_ENV: production
+      REDIS_DB: 0
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_TLS: 'false'
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://localhost:3001/api/v1/health/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    ports:
+      - '3001:3001'
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+  event-worker:
+    profiles: ['application']
+    build:
+      context: .
+      dockerfile: infrastructure/docker/event-worker.Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      APP_VERSION: ${APP_VERSION:-0.1.0}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-voice_commerce}:${POSTGRES_PASSWORD:-local-development-only}@postgres:5432/${POSTGRES_DB:-voice_commerce}?schema=public
+      EVENT_WORKER_CONCURRENCY: ${EVENT_WORKER_CONCURRENCY:-5}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      NODE_ENV: production
+      REDIS_DB: 0
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_TLS: 'false'
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+  admin-web:
+    profiles: ['application']
+    build:
+      args:
+        NEXT_PUBLIC_CONTROL_API_URL: ${NEXT_PUBLIC_CONTROL_API_URL:-http://localhost:3001/api/v1}
+      context: .
+      dockerfile: infrastructure/docker/admin-web.Dockerfile
+    depends_on:
+      control-api:
+        condition: service_healthy
+    environment:
+      HOSTNAME: 0.0.0.0
+      NODE_ENV: production
+      PORT: 3000
+    ports:
+      - '3000:3000'
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  postgres-data:
+  redis-data:
