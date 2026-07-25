@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "dev": "tsx watch src/main.ts",
+    "dev": "dotenv -e ../../.env -- tsx watch src/main.ts",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix --max-warnings=0",
     "start": "node dist/main.js",
@@ -27,6 +27,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.1.0",
+    "dotenv-cli": "^8.0.0",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"

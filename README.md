@@ -86,8 +86,10 @@ docker compose --profile application up --build
 - [Phase 1 foundation architecture](docs/architecture/PHASE_1_FOUNDATION.md)
 - [Phase 2 enterprise authentication](docs/architecture/PHASE_2_ENTERPRISE_AUTHENTICATION.md)
 - [Phase 2A QA report and local credentials](docs/qa/PHASE_2A_QA_REPORT.md)
+- [Phase 2B environment QA report](docs/qa/PHASE_2B_ENVIRONMENT_QA_REPORT.md)
 - [Architecture decisions](docs/architecture/decisions/)
 - [Local development](docs/setup/LOCAL_DEVELOPMENT.md)
+- [Environment configuration reference](docs/setup/ENVIRONMENT_CONFIGURATION.md)
 
 ## Security
 

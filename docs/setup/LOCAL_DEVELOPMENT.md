@@ -24,7 +24,9 @@ pnpm validate
 ```
 
 The default `.env` values are for local development only. Never reuse them in shared or production
-environments.
+environments. The API and worker development scripts load this root file automatically. See the
+[environment configuration reference](ENVIRONMENT_CONFIGURATION.md) for the complete requirement
+matrix and production guidance.
 
 ## Start the platform
 
@@ -145,7 +147,7 @@ Avoid deleting lockfiles as a first response. Dependency updates should be inten
 
 ## Authentication bootstrap
 
-Generate a Base64-encoded 32-byte JWT secret with `openssl rand -base64 32`, then set
+Generate a Base64-encoded JWT secret with `openssl rand -base64 48`, then set
 `AUTH_JWT_SECRET`, the SMTP variables, and `SUPER_ADMIN_*` in `.env`. After PostgreSQL migrations:
 
 ```bash
