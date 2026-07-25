@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-FROM node:22.17.1-alpine3.22 AS build
+FROM node:26.3.0-alpine3.22 AS build
 
 ARG NEXT_PUBLIC_CONTROL_API_URL=http://localhost:3001/api/v1
 ENV NEXT_PUBLIC_CONTROL_API_URL=$NEXT_PUBLIC_CONTROL_API_URL
@@ -13,7 +13,7 @@ COPY . .
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm --filter @avc/admin-web... build
 
-FROM node:22.17.1-alpine3.22 AS runtime
+FROM node:26.3.0-alpine3.22 AS runtime
 
 ENV HOSTNAME=0.0.0.0
 ENV NODE_ENV=production
