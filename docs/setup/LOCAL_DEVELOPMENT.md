@@ -142,3 +142,15 @@ pnpm install --frozen-lockfile
 ```
 
 Avoid deleting lockfiles as a first response. Dependency updates should be intentional and reviewed.
+
+## Authentication bootstrap
+
+Generate a Base64-encoded 32-byte JWT secret with `openssl rand -base64 32`, then set
+`AUTH_JWT_SECRET`, the SMTP variables, and `SUPER_ADMIN_*` in `.env`. After PostgreSQL migrations:
+
+```bash
+pnpm auth:bootstrap-super-admin
+```
+
+The operation refuses to create a second Super Admin. Remove the bootstrap password from deployment
+secrets after successful provisioning.

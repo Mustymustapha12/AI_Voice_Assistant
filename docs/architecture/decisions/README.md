@@ -12,9 +12,10 @@ multiple modules, or constrain security, reliability, and operations.
 
 ## Index
 
-| ADR                                              | Title                                         | Status   |
-| ------------------------------------------------ | --------------------------------------------- | -------- |
-| [ADR-011](ADR-011-PHASE-1-FOUNDATION-TOOLING.md) | Phase 1 foundation tooling and queue boundary | Accepted |
+| ADR                                                            | Title                                         | Status   |
+| -------------------------------------------------------------- | --------------------------------------------- | -------- |
+| [ADR-011](ADR-011-PHASE-1-FOUNDATION-TOOLING.md)               | Phase 1 foundation tooling and queue boundary | Accepted |
+| [ADR-012](ADR-012-ENTERPRISE-IDENTITY-AND-SESSION-SECURITY.md) | Enterprise identity and session security      | Accepted |
 
 ADRs 001–010 are summarized in the Phase 0 Software Architecture Document and should be expanded
 into individual records when implementation work first exercises each decision.

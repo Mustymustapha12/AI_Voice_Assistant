@@ -38,6 +38,7 @@ export async function createApplication(): Promise<NestFastifyApplication> {
   await application.register(import('@fastify/helmet'), {
     contentSecurityPolicy: environment.NODE_ENV === 'production',
   });
+  await application.register(import('@fastify/cookie'));
   await application.register(import('@fastify/cors'), {
     credentials: true,
     origin: [...parseCorsOrigins(environment.CONTROL_API_CORS_ORIGINS)],
@@ -48,6 +49,8 @@ export async function createApplication(): Promise<NestFastifyApplication> {
       .setTitle('AI Voice Commerce Control API')
       .setDescription('Control-plane API for the AI Voice Commerce Platform.')
       .setVersion(environment.APP_VERSION)
+      .addBearerAuth({ bearerFormat: 'JWT', scheme: 'bearer', type: 'http' }, 'access-token')
+      .addCookieAuth('avc_refresh', { in: 'cookie', type: 'apiKey' }, 'avc_refresh')
       .addServer(`/${API_GLOBAL_PREFIX}/v${API_VERSION}`)
       .build();
     const document = SwaggerModule.createDocument(application, swaggerConfiguration);

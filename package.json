@@ -27,6 +27,7 @@
     "db:migrate": "pnpm --filter @avc/database prisma:migrate",
     "db:deploy": "pnpm --filter @avc/database prisma:deploy",
     "db:studio": "pnpm --filter @avc/database prisma:studio",
+    "auth:bootstrap-super-admin": "pnpm --filter @avc/identity-access bootstrap:super-admin",
     "prepare": "husky"
   },
   "devDependencies": {

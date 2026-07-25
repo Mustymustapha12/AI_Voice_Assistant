@@ -2,6 +2,7 @@ import { CacheModule } from '@avc/cache';
 import { parseBackendEnvironment } from '@avc/config';
 import { DatabaseModule } from '@avc/database';
 import { GlobalExceptionFilter } from '@avc/http';
+import { IdentityAccessModule } from '@avc/identity-access';
 import { ObservabilityModule } from '@avc/observability';
 import { QueueModule } from '@avc/queue';
 import { Module } from '@nestjs/common';
@@ -29,6 +30,7 @@ const redisConfiguration = {
     DatabaseModule,
     CacheModule.forRoot(redisConfiguration),
     QueueModule.forRoot(redisConfiguration),
+    IdentityAccessModule,
     HealthModule,
   ],
   providers: [

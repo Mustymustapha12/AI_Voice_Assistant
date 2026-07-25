@@ -35,6 +35,23 @@ export const backendEnvironmentSchema = z
     REDIS_TLS: falseFromString,
     REDIS_DB: z.coerce.number().int().min(0).default(0),
     EVENT_WORKER_CONCURRENCY: z.coerce.number().int().min(1).max(100).default(5),
+    AUTH_JWT_SECRET: optionalSecret,
+    AUTH_JWT_ISSUER: z.string().min(1).default('ai-voice-commerce'),
+    AUTH_JWT_AUDIENCE: z.string().min(1).default('ai-voice-commerce-admin'),
+    AUTH_ACCESS_TOKEN_TTL_SECONDS: z.coerce.number().int().min(60).max(3_600).default(900),
+    AUTH_REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().min(1).max(90).default(30),
+    AUTH_VERIFICATION_TOKEN_TTL_HOURS: z.coerce.number().int().min(1).max(168).default(24),
+    AUTH_PASSWORD_RESET_TOKEN_TTL_MINUTES: z.coerce.number().int().min(5).max(120).default(30),
+    AUTH_FRONTEND_URL: z.url().default('http://localhost:3000'),
+    SMTP_HOST: optionalSecret,
+    SMTP_PORT: z.coerce.number().int().min(1).max(65_535).default(587),
+    SMTP_SECURE: falseFromString,
+    SMTP_USER: optionalSecret,
+    SMTP_PASSWORD: optionalSecret,
+    SMTP_FROM: optionalSecret,
+    SUPER_ADMIN_EMAIL: optionalSecret,
+    SUPER_ADMIN_DISPLAY_NAME: optionalSecret,
+    SUPER_ADMIN_PASSWORD: optionalSecret,
   })
   .readonly();
 

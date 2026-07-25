@@ -2,7 +2,7 @@
 
 Production-grade enterprise SaaS foundation for configurable multilingual AI voice commerce.
 
-> **Current phase:** Phase 1 infrastructure foundation. Authentication, tenant business behavior,
+> **Current phase:** Phase 2 enterprise authentication. Tenant business behavior,
 > catalog, AI, telephony, payments, and messaging are intentionally not implemented.
 
 ## Repository structure
@@ -84,6 +84,7 @@ docker compose --profile application up --build
 
 - [Software Architecture Document](docs/architecture/SOFTWARE_ARCHITECTURE.md)
 - [Phase 1 foundation architecture](docs/architecture/PHASE_1_FOUNDATION.md)
+- [Phase 2 enterprise authentication](docs/architecture/PHASE_2_ENTERPRISE_AUTHENTICATION.md)
 - [Architecture decisions](docs/architecture/decisions/)
 - [Local development](docs/setup/LOCAL_DEVELOPMENT.md)
 
