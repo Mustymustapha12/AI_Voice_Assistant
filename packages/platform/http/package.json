@@ -20,8 +20,8 @@
   },
   "dependencies": {
     "@avc/contracts": "workspace:*",
-    "@nestjs/common": "^11.1.5",
-    "fastify": "^5.4.0",
+    "@nestjs/common": "^11.2.3",
+    "fastify": "^5.12.1",
     "nestjs-pino": "^4.4.0"
   },
   "devDependencies": {
