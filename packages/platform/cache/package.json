@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@nestjs/common": "^11.1.5",
-    "ioredis": "^5.6.1"
+    "ioredis": "^6.0.0"
   },
   "devDependencies": {
     "typescript": "^5.8.3",
