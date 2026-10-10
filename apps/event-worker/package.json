@@ -18,7 +18,7 @@
     "@avc/database": "workspace:*",
     "@avc/observability": "workspace:*",
     "@avc/queue": "workspace:*",
-    "@nestjs/bullmq": "^11.0.3",
+    "@nestjs/bullmq": "^12.0.0",
     "@nestjs/common": "^11.1.5",
     "@nestjs/core": "^11.1.5",
     "nestjs-pino": "^4.4.0",
